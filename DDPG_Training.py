@@ -1,43 +1,10 @@
-import gym
-from gym import spaces
 import numpy as np
 import matplotlib as plt
 import tensorflow as tf
 from tensorflow.keras import layers
 from ZernikeClass import ZernikeWF as zer
+from SAO_Environment import SAO_Env
 
-
-class OurCustomEnv(gym.Env):
-
-    def __init__(self, Image, obs_range, action_range):
-
-                              
-        self.Image = Image
-    
-        
-        #we create an observation space with predefined range
-        self.observation_space = spaces.Box(low = obs_range[0], high = obs_range[1],
-                                                                     dtype = np.float32)
-
-        #similar to observation, we define action space 
-        self.action_space = spaces.Box(low = action_range[0], shape=(5, ),high = action_range[1],
-                                                                dtype = np.float32)
-    def step(self, action): 
-        
-        Img = zer().generate_Img(self.Image, action) 
-        
-        reward = zer().metric_function(Img)
-        state = [[reward]]                     #gives total sales based on spends
-        done = True                            #Condition for completion of episode
-        info = {}        
-
-        return state, reward, done, info 
-
-    def reset(self):
-        obs = zer().metric_function(self.Image)
-
-        return [[obs]]
-    
 class OUActionNoise:
     def __init__(self, mean, std_deviation, theta=0.15, dt=1e-2, x_initial=None):
         self.theta = theta
@@ -201,7 +168,7 @@ def policy(state, noise_object):
 obs_range = [-100,100]
 action_range = [-10,10]
 Image = zer().Get_Origin_Img()
-env = OurCustomEnv(Image, obs_range, action_range)
+env = SAO_Env(Image, obs_range, action_range)
 
 num_states = env.observation_space.shape[0]
 print("Size of State Space ->  {}".format(num_states))
@@ -291,3 +258,4 @@ plt.plot(ep_reward_list)
 plt.xlabel("Episode")
 plt.ylabel("Epsiodic Reward")
 plt.show()
+
